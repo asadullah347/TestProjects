@@ -161,8 +161,21 @@ void Logic()
     }
 
     // Collision with walls
-    if (x >= width || x < 0 || y >= height || y < 0)
-        gameOver = true;
+    /* if (x >= width || x < 0 || y >= height || y < 0)
+        gameOver = true; */
+
+    //to make the snake pass through walls and appear on the opposite side
+    if (x >= width) x = 0; else if (x < 0) x = width -1;
+    if (y >= height) y = 0; else if (y < 0) y = height -1;
+
+
+    // Collision with tail
+    for(int i =0; i < nTail; i++)
+    {
+        if(tailX[i] == x && tailY[i] == y)
+            gameOver = true;
+    }
+
     // Collision with fruit
     if (x == fruitX && y == fruitY)
     {
