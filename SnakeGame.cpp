@@ -1,6 +1,9 @@
 #include <iostream>
 #include <conio.h>
 #include <cstdlib>
+#include <thread> // For std::this_thread::sleep_for
+#include <chrono>
+#include <windows.h>
 using namespace std;
 
 
@@ -11,6 +14,8 @@ const int height = 20;
 
 // Snake head position
 int x, y;
+int tailX[100], tailY[100];
+int nTail; // tail length, not used in this simple version
 // Fruit position
 int fruitX, fruitY;
 int score;
@@ -38,7 +43,8 @@ void SetUp()
 
 void Draw()
 {
-    system("cls"); // to clear the console
+    //system("cls"); // to clear the console
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), {0,0}); //to clear the console without flickeringz
 
 
     for (int i = 0; i < width + 2; i++)   // Top walls
@@ -57,10 +63,24 @@ void Draw()
                     cout << "O"; // Snake head
                 else if (i == fruitY && j == fruitX)
                     cout << "F"; // Fruit
+
+
                 else
+                {   // Snake tail logic
+                    bool printTail = false;
+                    for (int k = 0; k < nTail; k++)
+                    {
+                        if (tailX[k] == j && tailY[k] == i)
+                        {
+                            cout << "o"; // Snake tail
+                            printTail = true;
+                        }
+                    }
+                    if (!printTail)
+                        cout << " "; // empty space
 
-                cout << " "; // empty space
-
+                }
+                
             if (j == width - 1)
                 cout << "#"; // Right wall
 
@@ -105,6 +125,23 @@ void Input()
 
 void Logic()
 {
+    int prevX = tailX[0];
+    int prevY = tailY[0];
+    int prev2X, prev2Y;
+    //get the previous position of the head and store it in the first tail segment
+    tailX[0] = x; 
+    tailY[0] = y;
+
+    for (int i = 1; i < nTail; i++)
+    {
+        prev2X = tailX[i];
+        prev2Y = tailY[i];
+        tailX[i] = prevX;
+        tailY[i] = prevY;
+        prevX = prev2X;
+        prevY = prev2Y;
+    }
+
     switch (dir)
     {
     case LEFT:
@@ -132,6 +169,7 @@ void Logic()
         score += 10;
         fruitX = rand() % width;
         fruitY = rand() % height;
+        nTail++; // increase tail length
     }
     
 }
@@ -146,5 +184,6 @@ int main()
         Draw();
         Input();
         Logic();
+        Sleep(100); //sleep(10) for faster speed
     }
 }
